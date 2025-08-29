@@ -8,6 +8,7 @@ import {
   BarcodeScanningResult
 } from "expo-camera"
 import * as MediaLibrary from "expo-media-library"
+import * as ImagePicker from "expo-image-picker"
 
 const App = () => {
   const [permission, requestPermission] = useCameraPermissions()
@@ -77,6 +78,27 @@ const App = () => {
       }
     }
   }
+
+  const handlePickImage = async () => {
+    const permisionRes = await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+    if (!permisionRes.granted) {
+      Alert.alert("Permission", "Permission to access gallery is required!")
+      return
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, // only image
+      allowsEditing: true, // crop
+      quality: 1
+    })
+
+    if (!result.canceled) {
+      // result.assets -> []
+      setPhoto(result.assets[0].uri)
+    }
+  }
+
   return (
     <View className="flex-1">
       <Image source={{ uri: photo }} className="w-full h-96" />
@@ -101,6 +123,12 @@ const App = () => {
           onPress={() => setFacing(facing === "back" ? "front" : "back")}
         >
           <Text className="text-center text-2xl text-white">Flip</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          className="bg-black p-4 border border-gray-200"
+          onPress={handlePickImage}
+        >
+          <Text className="text-center text-2xl text-white">Pick an image</Text>
         </TouchableOpacity>
       </View>
     </View>
